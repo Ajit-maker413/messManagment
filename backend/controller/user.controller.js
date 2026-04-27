@@ -72,7 +72,7 @@ async function sendOtp(req, res) {
 
 
 
-async function verifyOtp(req, res) {
+async function verifyOtpEndpoint(req, res) {
   const { otp, token, role } = req.body;
 
   try {
@@ -133,8 +133,10 @@ const logout = (req, res) => {
   res.json({ message: "Logged out" });
 };
 
+
+
 export {
   sendOtp,
-  verifyOtp,
+  verifyOtpEndpoint as verifyOtp,
     logout
 };

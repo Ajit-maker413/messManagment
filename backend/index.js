@@ -2,6 +2,7 @@ import express from "express";
 import mysql from "mysql2/promise";
 import  sqlInit  from "./db/db.init.js";
 import userRoutes from "./routes/user.route.js";
+import messRoutes from "./routes/mess.routs.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger.js";
 import dotenv from "dotenv";
@@ -64,6 +65,7 @@ export const pool = mysql.createPool({
 // --------------------
 
 app.use("/api/users", userRoutes);
+app.use("/api/mess", messRoutes);
 
 
 // --------------------
