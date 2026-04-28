@@ -5,46 +5,66 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import ChiefWardenPanel from "./pages/ChiefWardenPanel/ChiefWardenPanel";
 import Dashboard from "./pages/Dashboard/Dashboard";
-//import SupervisorPanel from "./pages/SupervisorPanel/SupervisorPanel";
+import FeedbackPage from "./pages/FeedbackPage/Feedback";
 
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-// Wrapper for layout control
 const AppContent = () => {
   const location = useLocation();
 
-  // ✅ Define all dashboard-type routes
-  const dashboardRoutes = [
-    "/admin",
-    "/chief-warden",
-    "/student",
-    "/supervisor"
-  ];
+  const hideLayoutRoutes = ["/admin", "/chief-warden", "/dashboard"];
 
-  // Check if current route is a dashboard page
-  const isDashboardPage = dashboardRoutes.some(path =>
+  const isDashboardPage = hideLayoutRoutes.some(path =>
     location.pathname.startsWith(path)
   );
 
   return (
     <>
-      {/* Hide Navbar on dashboard pages */}
       {!isDashboardPage && <Navbar />}
 
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Dashboards */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/chief-warden" element={<ChiefWardenPanel />} />
-        {/* <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/supervisor" element={<SupervisorPanel />} /> */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT"]}>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/chief-warden"
+          element={
+            <ProtectedRoute allowedRoles={["WARDEN"]}>
+              <ChiefWardenPanel />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/feedback"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT"]}>
+              <FeedbackPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
-      {/* Hide Footer on dashboard pages */}
       {!isDashboardPage && <Footer />}
     </>
   );

@@ -1,36 +1,66 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./LoginForm.css";
-import { AuthContext } from "../../contextAPI/AuthContext";
+import { useAuth } from "../../contextAPI/AuthContext";
+import { useToast } from "../../contextAPI/ToastContext";
 import { sendOtp, verifyOtp } from "../../api/auth";
 
+const roles = [
+  { label: "Student", value: "STUDENT" },
+  { label: "Admin", value: "ADMIN" },
+  { label: "Warden", value: "WARDEN" }
+] as const;
+
 const LoginForm = () => {
-  const auth = useContext(AuthContext);
+  const { email, setEmail, otp, setOtp, role, setRole, login } = useAuth();
+  const [tempToken, setTempToken] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
-  if (!auth) return null;
-
-  const { email, setEmail, otp, setOtp } = auth;
-
-  // 👉 Send OTP
   const handleSendOtp = async () => {
+    if (!email) {
+      showToast("Please enter a valid email.", "error");
+      return;
+    }
+
     try {
-      const res = await sendOtp(email, "user");
-      console.log("OTP sent:", res.data);
-      alert("OTP sent successfully");
+      const response = await sendOtp(email, role ?? "STUDENT");
+      setTempToken(response.data.token);
+      showToast("OTP sent successfully. Check your email.", "success");
     } catch (err) {
-      console.log(err);
-      alert("Failed to send OTP");
+      console.error(err);
+      showToast("Failed to send OTP. Make sure role and email are correct.", "error");
     }
   };
 
-  // 👉 Verify OTP
   const handleVerifyOtp = async () => {
+    if (!otp || !tempToken) {
+      showToast("Request OTP first and enter the code.", "error");
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      const res = await verifyOtp(email, otp);
-      console.log("Verified:", res.data);
-      alert("Login successful");
+      const response = await verifyOtp(otp, tempToken, role ?? "STUDENT");
+      const { token, role: verifiedRole, user } = response.data;
+
+      await login({ token, role: verifiedRole, user });
+      showToast("Login successful.", "success");
+
+      if (verifiedRole === "ADMIN") {
+        navigate("/admin");
+      } else if (verifiedRole === "WARDEN") {
+        navigate("/chief-warden");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
-      console.log(err);
-      alert("Invalid OTP");
+      console.error(err);
+      showToast("OTP verification failed. Please try again.", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,7 +77,15 @@ const LoginForm = () => {
         onChange={(e) => setEmail(e.target.value)}
       />
 
-      {/* ✅ SEND OTP BUTTON CONNECTED */}
+      <label>Role</label>
+      <select value={role ?? "STUDENT"} onChange={(e) => setRole(e.target.value as "STUDENT" | "ADMIN" | "WARDEN") }>
+        {roles.map((item) => (
+          <option key={item.value} value={item.value}>
+            {item.label}
+          </option>
+        ))}
+      </select>
+
       <button className="primary-btn" onClick={handleSendOtp}>
         Send OTP →
       </button>
@@ -65,9 +103,8 @@ const LoginForm = () => {
         onChange={(e) => setOtp(e.target.value)}
       />
 
-      {/* ✅ VERIFY OTP BUTTON CONNECTED */}
-      <button className="primary-btn" onClick={handleVerifyOtp}>
-        Verify & Continue
+      <button className="primary-btn" onClick={handleVerifyOtp} disabled={isLoading}>
+        {isLoading ? "Verifying..." : "Verify & Continue"}
       </button>
 
       <p className="resend">⟳ Resend OTP</p>
