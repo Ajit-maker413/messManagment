@@ -1,6 +1,6 @@
  const sqlInit = `
-    CREATE DATABASE IF NOT EXISTS mess_management;
-    USE mess_management;
+    CREATE DATABASE IF NOT EXISTS app_db;
+    USE app_db;
 
     CREATE TABLE IF NOT EXISTS hostel (
         hostel_id INT AUTO_INCREMENT PRIMARY KEY,

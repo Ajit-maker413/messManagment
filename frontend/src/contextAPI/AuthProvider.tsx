@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { AuthContext, UserRole } from "./AuthContext";
+import { AuthContext } from "./AuthContext.tsx";
+import type { UserRole } from "./AuthContext.tsx";
 import { logoutApi } from "../api/user";
 import { setAuthToken } from "../api/axiosInstance";
 

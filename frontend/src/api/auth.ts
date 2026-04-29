@@ -1,9 +1,14 @@
 import axiosInstance from "./axiosInstance";
+import type { UserRole } from "./types";
 
-export const sendOtp = (email: string, role: string) => {
+export const sendOtp = (email: string, role: UserRole) => {
   return axiosInstance.post("/users/send-otp", { email, role });
 };
 
-export const verifyOtp = (otp: string, token: string, role: string) => {
+export const verifyOtp = (otp: string, token: string, role: UserRole) => {
   return axiosInstance.post("/users/verify-otp", { otp, token, role });
+};
+
+export const logout = () => {
+  return axiosInstance.post("/users/logout");
 };

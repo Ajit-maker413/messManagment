@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "*",
+  origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -51,7 +51,7 @@ export const pool = mysql.createPool({
   host: process.env.DB_HOST || "db",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "root",
-  database: process.env.DB_NAME || "mess_management",
+  database: process.env.DB_NAME || "app_db",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -67,19 +67,10 @@ async function connectDB() {
       const conn = await pool.getConnection();
       console.log(" MySQL connected");
 
-      const [rows] = await conn.query(`
-        SELECT SCHEMA_NAME 
-        FROM INFORMATION_SCHEMA.SCHEMATA 
-        WHERE SCHEMA_NAME = 'mess_management'
-      `);
+      // Always ensure DB + tables
+      await conn.query(sqlInit);
 
-      if (rows.length === 0) {
-        await conn.query(sqlInit);
-        console.log(" Fresh DB initialized");
-      } else {
-        await conn.query("USE mess_management");
-        console.log(" DB exists:", rows[0].SCHEMA_NAME);
-      }
+      console.log(" DB & Tables ensured");
 
       conn.release();
       break;

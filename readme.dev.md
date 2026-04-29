@@ -9,7 +9,7 @@ This project uses `docker-compose.dev.yaml` for running services in development 
 ### ▶️ Start everything at once
 
 ```bash
-docker compose -f docker-compose.dev.yaml up --build
+    docker compose -f docker-compose.dev.yaml up --build
 ```
 
 👉 This will start:

@@ -20,8 +20,7 @@ async function findUserByRole(email, role) {
     }
   } else {
     const [rows] = await pool.query(queries.getStaffByEmail, [email]);
-
-    if (rows.length > 0 && rows[0].role === role) {
+    if (rows.length > 0 && rows[0].role == role) {
       return {
         user: rows[0],
         role: rows[0].role,
